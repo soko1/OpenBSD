@@ -1,6 +1,7 @@
 #!/bin/ksh
 #
 # Copyright (c) 2012 Peter Ljung <ljung.peter@gmail.com>
+# Copyright (c) 2014 Sakalou Aliaksei <nullbsd@gmail.com>
 #
 # Permission to use, copy, modify, and distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
@@ -41,6 +42,11 @@
 # - TODO: Automatically detect WEP/WPA security
 # - TODO: Improve security for known file
 #
+
+if [ `whoami` != 'root' ]; then
+    echo "$0: only root can do that"
+    exit
+fi
 
 # Default values
 AUTO="true"    # Setup automatically if possible
