@@ -91,7 +91,7 @@ col() {
 # Get all interfaces (from dmesg output) as lines 
 # TODO: Filter on WLAN interfaces (then unneccesary if selection with be removed)
 get_all_interfaces() {
-  dmesg | grep 'address' | awk '{ print $1 }' 
+  ifconfig | pcregrep -M -o '^[^\t:]+:([^\n]|\n\t)*groups: wlan' | head -n 1| awk {'print $1'} | sed s/://
 }
 
 # Get network if from user
@@ -152,8 +152,12 @@ get_network() {
 # Get password from user. Set PASSWORD and AUTHTYPE if that can be determined from password type
 get_password() {
   if [[ -z $PASSWORD ]]; then
-    print -n "Enter password: "; read pw
-    PASSWORD="$pw"
+      trap 'stty echo' 0
+      printf 'Enter password (hidden): '
+      stty -echo
+      read pw
+      stty echo                                                                      
+      PASSWORD="$pw"
   fi
 }
 
