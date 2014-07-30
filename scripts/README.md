@@ -1,4 +1,4 @@
-# auto-wifi.sh =-
+# auto-wifi.sh 
 
 ## Info:
 
