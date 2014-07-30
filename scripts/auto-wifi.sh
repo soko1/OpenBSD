@@ -91,7 +91,7 @@ col() {
 # Get all interfaces (from dmesg output) as lines 
 # TODO: Filter on WLAN interfaces (then unneccesary if selection with be removed)
 get_all_interfaces() {
-  ifconfig | pcregrep -M -o '^[^\t:]+:([^\n]|\n\t)*groups: wlan' | head -n 1| awk {'print $1'} | sed s/://
+  ifconfig | perl -ne '$i=$1 if /^(\S+):/; print $i."\n" if /groups: wlan/'
 }
 
 # Get network if from user
@@ -280,7 +280,7 @@ finalize() {
 }
 
 # Main ...
-while getopts "i:n:p:t:f:m" opt; do
+while getopts "i:n:p:t:f:m:y" opt; do
     case $opt in 
         i )    INTERFACE=$OPTARG ;;
         n )    NAME=$OPTARG ;;
@@ -288,7 +288,8 @@ while getopts "i:n:p:t:f:m" opt; do
         t )    AUTHTYPE=$OPTARG ;;
         f )    KNOWN_FILE=$OPTARG ;;
         m )    AUTO="false" ;;
-        \? )    print 'usage: sudo auto-wifi.sh [-i interface] [-n network_name] [-p password] [-t open/wep/wpa] [-f known_file] [-m(anual)]'
+        y )    NOASK="true" ;;
+    \? )    print 'usage: sudo auto-wifi.sh [-i interface] [-n network_name] [-p password] [-t open/wep/wpa] [-f known_file] [-m(anual)] [-y (do not ask questions)]'
                return 1 ;;
     esac
 done
@@ -298,12 +299,14 @@ get_interface; print
 if [[ -z $INTERFACE ]]; then
   print "No interface available. Exit"; finalize
 fi
-if [[ $(if_status) == "active" ]]; then
-  print -n "Interface ($INTERFACE) is active. Disconnect? ([y]n): "; read ANS
-  if [[ $ANS == "n" ]]; then
-    print "You cant setup an active interface. Exit"; finalize
-  fi
-  print
+if [[ $NOASK != "true" ]]; then
+    if [[ $(if_status) == "active" ]]; then
+      print -n "Interface ($INTERFACE) is active. Disconnect? ([y]n): "; read ANS
+      if [[ $ANS == "n" ]]; then
+         print "You cant setup an active interface. Exit"; finalize
+      fi
+      print
+    fi
 fi
 disconnect
 if [[ $AUTO == "true" ]]; then
@@ -318,17 +321,19 @@ if [[ "$AUTHTYPE" != "open" ]]; then
 fi
 connect
 dhclient_request
-if [[ $(if_status) == "active" ]]; then
-  add_known_network  # Ask user first?
-  connect_string
-  print "Interface ($INTERFACE) is active!"
-  print -n "Do you want to add connect string to $HNAME_FILE? (y[n]): "; read ans
-  if [[ $ans == "y" ]]; then
-    print "Add the following line to $HNAME_FILE:"  # Remove! 
-    print "$CONN_STR"
-  fi
-else
-  print "Connection failed. Run script again to try again"
-  print "Known password my be outdated. Do manual setup (-m) to override known password"
+if [[ $NOASK != "true" ]]; then
+    if [[ $(if_status) == "active" ]]; then
+      add_known_network  # Ask user first?
+      connect_string
+      print "Interface ($INTERFACE) is active!"
+      print -n "Do you want to add connect string to $HNAME_FILE? (y[n]): "; read ans
+    if [[ $ans == "y" ]]; then
+      print "Add the following line to $HNAME_FILE:"  # Remove! 
+      print "$CONN_STR"
+    fi
+    else
+     print "Connection failed. Run script again to try again"
+     print "Known password my be outdated. Do manual setup (-m) to override known password"
+    fi
 fi
 finalize
