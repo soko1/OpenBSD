@@ -1,10 +1,10 @@
 # auto-wifi.sh
 
-## Info:
+### Info:
 
 /etc/known_wifi - wifi database textfile
 
-## Good tweaks:
+### Good tweaks:
 
 1.
 
@@ -24,6 +24,7 @@ $ cat /etc/hostname.$YOUR_WIFI_INTERFACE
 
 Shell-script for copying public keys on remote computers.
 
-## Usage:
-
+### Usage:
+```
 $ ssh-copy-id user@host
+```
