@@ -1,4 +1,4 @@
-# auto-wifi.sh 
+# auto-wifi.sh
 
 ## Info:
 
@@ -8,14 +8,22 @@
 
 1.
 
-$ cat /etc/apm/resume 
+$ cat /etc/apm/resume
 ```
 #!/bin/sh
 /bin/sh $PATH_IN_SCRIPT/auto-wifi.sh -i $YOUR_WIFI_INTERFACE -y
 ```
-2. 
+2.
 
 $ cat /etc/hostname.$YOUR_WIFI_INTERFACE
 ```
 !/bin/sh $PATH_IN_SCRIPT/auto-wifi.sh -i $YOUR_WIFI_INTERFACE -y
 ```
+
+# ssh-copy-id
+
+Shell-script for copying public keys on remote computers.
+
+## Usage:
+
+$ ssh-copy-id user@host
